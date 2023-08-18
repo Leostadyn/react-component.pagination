@@ -383,7 +383,7 @@ class Pagination extends React.Component<PaginationProps, PaginationState> {
   hasPrev = () => this.state.current > 1;
 
   hasNext = () =>
-    this.state.current < calculatePage(undefined, this.state, this.props);
+    (this.state.current < calculatePage(undefined, this.state, this.props)) && this.props.nextDisabled;
 
   getShowSizeChanger() {
     const { showSizeChanger, total, totalBoundaryShowSizeChanger } = this.props;
@@ -435,13 +435,13 @@ class Pagination extends React.Component<PaginationProps, PaginationState> {
   };
 
   renderNext = (nextPage: number) => {
-    const { nextIcon, itemRender, nextDisabled } = this.props;
+    const { nextIcon, itemRender } = this.props;
     const nextButton = itemRender(
       nextPage,
       'next',
       this.getItemIcon(nextIcon, 'next page'),
     );
-    const disabled = !this.hasNext() && nextDisabled;
+    const disabled = !this.hasNext();
     return isValidElement(nextButton)
       ? cloneElement<any>(nextButton, { disabled })
       : nextButton;
@@ -556,9 +556,9 @@ class Pagination extends React.Component<PaginationProps, PaginationState> {
                 tabIndex={this.hasPrev() ? 0 : null}
                 onKeyPress={this.runIfEnterPrev}
                 className={classNames(`${prefixCls}-prev`, {
-                  [`${prefixCls}-disabled`]: !this.hasPrev() && this.props.nextDisabled,
+                  [`${prefixCls}-disabled`]: !this.hasPrev(),
                 })}
-                aria-disabled={!this.hasPrev() && this.props.nextDisabled}
+                aria-disabled={!this.hasPrev()}
               >
                 {prev}
               </li>
@@ -751,7 +751,7 @@ class Pagination extends React.Component<PaginationProps, PaginationState> {
     }
 
     const prevDisabled = !this.hasPrev() || !allPages;
-    const nextDisabled = (!this.hasNext() || !allPages) && this.props.nextDisabled;
+    const nextDisabled = !this.hasNext() || !allPages;
 
     const prev = this.renderPrev(prevPage);
     const next = this.renderNext(nextPage);
