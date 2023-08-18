@@ -53,6 +53,8 @@ export interface PaginationData {
   nextIcon: React.ComponentType | React.ReactNode;
   jumpPrevIcon: React.ComponentType | React.ReactNode;
   jumpNextIcon: React.ComponentType | React.ReactNode;
+
+  nextDisabled: boolean
 }
 
 export interface PaginationProps extends Partial<PaginationData> {
@@ -123,6 +125,7 @@ class Pagination extends React.Component<PaginationProps, PaginationState> {
     style: {},
     itemRender: defaultItemRender,
     totalBoundaryShowSizeChanger: 50,
+    nextDisabled: true
   };
   paginationNode = React.createRef<HTMLUListElement>();
 
@@ -432,13 +435,13 @@ class Pagination extends React.Component<PaginationProps, PaginationState> {
   };
 
   renderNext = (nextPage: number) => {
-    const { nextIcon, itemRender } = this.props;
+    const { nextIcon, itemRender, nextDisabled } = this.props;
     const nextButton = itemRender(
       nextPage,
       'next',
       this.getItemIcon(nextIcon, 'next page'),
     );
-    const disabled = !this.hasNext();
+    const disabled = !this.hasNext() && nextDisabled;
     return isValidElement(nextButton)
       ? cloneElement<any>(nextButton, { disabled })
       : nextButton;
@@ -553,9 +556,9 @@ class Pagination extends React.Component<PaginationProps, PaginationState> {
                 tabIndex={this.hasPrev() ? 0 : null}
                 onKeyPress={this.runIfEnterPrev}
                 className={classNames(`${prefixCls}-prev`, {
-                  [`${prefixCls}-disabled`]: !this.hasPrev(),
+                  [`${prefixCls}-disabled`]: !this.hasPrev() && this.props.nextDisabled,
                 })}
-                aria-disabled={!this.hasPrev()}
+                aria-disabled={!this.hasPrev() && this.props.nextDisabled}
               >
                 {prev}
               </li>
@@ -748,7 +751,7 @@ class Pagination extends React.Component<PaginationProps, PaginationState> {
     }
 
     const prevDisabled = !this.hasPrev() || !allPages;
-    const nextDisabled = !this.hasNext() || !allPages;
+    const nextDisabled = (!this.hasNext() || !allPages) && this.props.nextDisabled;
 
     const prev = this.renderPrev(prevPage);
     const next = this.renderNext(nextPage);
